@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Number Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.3);
+            height: 8px;
+            border-radius: 10px;
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: white;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .start-screen, .quiz-screen, .results-screen, .reference-screen {
+            display: none;
+        }
+
+        .start-screen.active, .quiz-screen.active, .results-screen.active, .reference-screen.active {
+            display: block;
+        }
+
+        .start-screen {
+            text-align: center;
+        }
+
+        .start-screen h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .start-screen p {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .location-name {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .answer-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 24px;
+            text-align: center;
+            border: 3px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .feedback {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        .results-screen h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .score-display {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .score-number {
+            font-size: 72px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .score-text {
+            color: #666;
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        .mistakes-list {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .mistake-item {
+            padding: 10px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mistake-item:last-child {
+            border-bottom: none;
+        }
+
+        .reference-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .reference-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .reference-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .reference-name {
+            color: #333;
+            font-size: 16px;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📍 Location Number Quiz</h1>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p id="progressText" style="margin-top: 10px; font-size: 14px;">Ready to start</p>
+        </div>
+
+        <div class="content">
+            <!-- Start Screen -->
+            <div class="start-screen active" id="startScreen">
+                <h2>Welcome to the Quiz!</h2>
+                <p>Test your knowledge by matching location names with their corresponding numbers. You'll be shown one location at a time - type in the correct number!</p>
+                <p><strong>5 random questions</strong> per quiz</p>
+                <div class="button-group">
+                    <button class="btn" id="startBtn">Start Quiz</button>
+                    <button class="btn btn-secondary" id="referenceBtn">View Reference List</button>
+                </div>
+            </div>
+
+            <!-- Quiz Screen -->
+            <div class="quiz-screen" id="quizScreen">
+                <div class="question-card">
+                    <div class="question-number" id="questionNumber">Question 1 of 5</div>
+                    <div class="location-name" id="locationName">Rye</div>
+                    <input type="number" class="answer-input" id="answerInput" placeholder="Enter number" autofocus>
+                    <div class="feedback" id="feedback"></div>
+                </div>
+                <div class="button-group">
+                    <button class="btn" id="submitBtn">Submit Answer</button>
+                    <button class="btn btn-secondary" id="skipBtn">Skip</button>
+                </div>
+            </div>
+
+            <!-- Results Screen -->
+            <div class="results-screen" id="resultsScreen">
+                <h2>🎉 Quiz Complete!</h2>
+                <div class="score-display">
+                    <div class="score-number" id="scoreNumber">0</div>
+                    <div class="score-text" id="scoreText">out of 5 correct</div>
+                </div>
+                <div id="mistakesSection"></div>
+                <div class="button-group">
+                    <button class="btn" id="restartBtn">Try Again</button>
+                    <button class="btn btn-secondary" id="referenceBtn2">View All Locations</button>
+                </div>
+            </div>
+
+            <!-- Reference Screen -->
+            <div class="reference-screen" id="referenceScreen">
+                <h2 style="text-align: center; color: #333; margin-bottom: 20px;">📋 Reference List</h2>
+                <div class="reference-grid" id="referenceGrid"></div>
+                <div class="button-group">
+                    <button class="btn" id="backBtn">Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const locations = {
+            70: "Rye",
+            71: "Broad Oak",
+            72: "Battle",
+            73: "Bexhill",
+            74: "Burwash",
+            75: "The Ridge",
+            76: "Bohemia Road",
+            77: "Pevensey",
+            78: "Wadhurst",
+            79: "Herstmonceux",
+            80: "Hailsham",
+            81: "Mayfield",
+            82: "Heathfield",
+            83: "Crowborough",
+            84: "Uckfield",
+            85: "Forest Row",
+            86: "Seaford",
+            87: "Newhaven",
+            88: "Barcombe",
+            89: "Lewes",
+            90: "Roedean",
+            91: "Preston Circus",
+            92: "Hove",
+            93: "Eastbourne",
+            94: "STC",
+            95: "HQ"
+        };
+
+        const QUESTIONS_PER_QUIZ = 5; // Number of random questions per quiz
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let mistakes = [];
+        let answered = false;
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function startQuiz() {
+            const allQuestions = Object.keys(locations).map(num => ({
+                number: num,
+                name: locations[num]
+            }));
+            
+            // Shuffle and select random questions
+            const shuffled = shuffleArray(allQuestions);
+            questions = shuffled.slice(0, QUESTIONS_PER_QUIZ);
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            mistakes = [];
+            answered = false;
+            
+            showScreen('quizScreen');
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                showResults();
+                return;
+            }
+
+            const question = questions[currentQuestionIndex];
+            document.getElementById('questionNumber').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+            document.getElementById('locationName').textContent = question.name;
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('feedback').className = 'feedback';
+            answered = false;
+            
+            updateProgress();
+            document.getElementById('answerInput').focus();
+        }
+
+        function updateProgress() {
+            const progress = (currentQuestionIndex / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `${currentQuestionIndex} of ${questions.length} completed`;
+        }
+
+        function submitAnswer() {
+            if (answered) {
+                nextQuestion();
+                return;
+            }
+
+            const answer = document.getElementById('answerInput').value.trim();
+            const question = questions[currentQuestionIndex];
+            const feedback = document.getElementById('feedback');
+            
+            if (!answer) {
+                alert('Please enter a number!');
+                return;
+            }
+
+            answered = true;
+
+            if (answer === question.number) {
+                score++;
+                feedback.className = 'feedback correct';
+                feedback.textContent = `✓ Correct! ${question.name} is #${question.number}`;
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = `✗ Incorrect. ${question.name} is #${question.number}, not #${answer}`;
+                mistakes.push({
+                    name: question.name,
+                    correct: question.number,
+                    wrong: answer
+                });
+            }
+
+            setTimeout(() => {
+                nextQuestion();
+            }, 2000);
+        }
+
+        function skipQuestion() {
+            const question = questions[currentQuestionIndex];
+            mistakes.push({
+                name: question.name,
+                correct: question.number,
+                wrong: 'Skipped'
+            });
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            displayQuestion();
+        }
+
+        function showResults() {
+            const percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('scoreNumber').textContent = score;
+            document.getElementById('scoreText').textContent = `out of ${questions.length} correct (${percentage}%)`;
+            
+            const mistakesSection = document.getElementById('mistakesSection');
+            if (mistakes.length > 0) {
+                let mistakesHTML = '<h3 style="color: #333; margin-bottom: 15px;">Review Your Mistakes:</h3>';
+                mistakesHTML += '<div class="mistakes-list">';
+                mistakes.forEach(mistake => {
+                    mistakesHTML += `
+                        <div class="mistake-item">
+                            <span><strong>${mistake.name}</strong></span>
+                            <span style="color: #667eea;">Correct: #${mistake.correct}</span>
+                        </div>
+                    `;
+                });
+                mistakesHTML += '</div>';
+                mistakesSection.innerHTML = mistakesHTML;
+            } else {
+                mistakesSection.innerHTML = '<p style="text-align: center; color: #28a745; font-size: 20px; font-weight: 600;">🌟 Perfect Score! 🌟</p>';
+            }
+            
+            showScreen('resultsScreen');
+            updateProgress();
+        }
+
+        function showReference() {
+            const grid = document.getElementById('referenceGrid');
+            grid.innerHTML = '';
+            
+            Object.keys(locations).sort((a, b) => a - b).forEach(number => {
+                const item = document.createElement('div');
+                item.className = 'reference-item';
+                item.innerHTML = `
+                    <div class="reference-number">${number}</div>
+                    <div class="reference-name">${locations[number]}</div>
+                `;
+                grid.appendChild(item);
+            });
+            
+            showScreen('referenceScreen');
+        }
+
+        function restartQuiz() {
+            startQuiz();
+        }
+
+        function backToStart() {
+            showScreen('startScreen');
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.start-screen, .quiz-screen, .results-screen, .reference-screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Allow Enter key to submit answer and attach all event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Start screen buttons
+            document.getElementById('startBtn').addEventListener('click', startQuiz);
+            document.getElementById('referenceBtn').addEventListener('click', showReference);
+            
+            // Quiz screen buttons
+            document.getElementById('submitBtn').addEventListener('click', submitAnswer);
+            document.getElementById('skipBtn').addEventListener('click', skipQuestion);
+            
+            // Results screen buttons
+            document.getElementById('restartBtn').addEventListener('click', restartQuiz);
+            document.getElementById('referenceBtn2').addEventListener('click', showReference);
+            
+            // Reference screen button
+            document.getElementById('backBtn').addEventListener('click', backToStart);
+            
+            // Enter key to submit answer
+            document.getElementById('answerInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    submitAnswer();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
